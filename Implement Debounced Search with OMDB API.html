@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Movie Search with Debounce</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      text-align: center;
+    }
+    input {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    #results {
+      margin-top: 20px;
+      text-align: left;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .movie {
+      padding: 8px;
+      border-bottom: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Movie Search</h2>
+  <input type="text" id="search" placeholder="Type movie name..." />
+  <div id="results"></div>
+
+  <script>
+    const input = document.getElementById('search');
+    const resultsDiv = document.getElementById('results');
+    let debounceTimeout;
+
+    async function fetchMovies(query) {
+      const apiKey = "8fe3c7cf"; // replace with your own key if needed
+      const res = await fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(query)}`);
+      const data = await res.json();
+
+      resultsDiv.innerHTML = ""; // Clear previous results
+
+      if (data.Response === "True") {
+        data.Search.forEach(movie => {
+          const div = document.createElement('div');
+          div.className = 'movie';
+          div.textContent = movie.Title;
+          resultsDiv.appendChild(div);
+        });
+      } else {
+        resultsDiv.innerHTML = `<p>No movies found</p>`;
+      }
+    }
+
+    input.addEventListener('input', () => {
+      const query = input.value.trim();
+
+      // Clear previous debounce
+      clearTimeout(debounceTimeout);
+
+      // Set new debounce
+      debounceTimeout = setTimeout(() => {
+        if (query) {
+          fetchMovies(query);
+        } else {
+          resultsDiv.innerHTML = "";
+        }
+      }, 500);
+    });
+  </script>
+
+</body>
+</html>
